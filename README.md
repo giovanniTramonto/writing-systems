@@ -1,16 +1,19 @@
 # Writing Systems Database
 
+**Demo:** https://writing-systems.netlify.app/
+
 A comprehensive database and API for exploring the world's writing systems, languages, scripts, and their relationships. Built with Nuxt 3, Prisma, and PostgreSQL.
 
 ## Features
 
 - **Rich Data Models**: Languages, Scripts, Countries, and Unicode Characters with detailed metadata
 - **Many-to-Many Relations**: Flexible relationships between languages, scripts, and countries via junction tables
-- **RESTful API**: Complete CRUD operations for all entities
+- **RESTful API**: Read endpoints for all entities; write endpoints available in local development only
 - **Complex Queries**: Pre-built endpoints for common use cases (languages by script, countries by language, etc.)
+- **Static Site Generation**: Deployed as a fully static site on Netlify (no cold starts)
 - **Seed Data**: Sample data covering major world languages and writing systems
 - **Type Safety**: Full TypeScript support with Prisma
-- **Docker Support**: Containerized PostgreSQL database
+- **Docker Support**: Containerized PostgreSQL database for local development
 
 ## Quick Start
 
