@@ -1,12 +1,6 @@
 [build]
-  command = "npm run build && mkdir -p .netlify/static/_nuxt && cp -r .nuxt/dist/client/_nuxt/. .netlify/static/_nuxt/"
-  publish = ".netlify/static"
-  functions = ".netlify/functions-internal"
+  command = "npm run generate"
+  publish = ".output/public"
 
 [build.environment]
   NODE_VERSION = "20"
-
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/server"
-  status = 200

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Country, Language, Script } from "~/types/writing-systems";
+import type { Character, Country, Language, Script } from "~/types/writing-systems";
 
 // ── Static data (loaded once at page level for SSR compatibility) ─────────────
 
@@ -8,6 +8,9 @@ const { data: allLanguages } = await useFetch<Language[]>(
 );
 const { data: allCountries } = await useFetch<Country[]>("/api/countries");
 const { data: allScripts } = await useFetch<Script[]>("/api/scripts");
+const { data: allCharacters } = await useFetch<Character[]>(
+  "/api/characters?include=all&limit=10000",
+);
 
 // ── Composables ───────────────────────────────────────────────────────────────
 
@@ -18,7 +21,7 @@ const {
   unicodeQuery,
   countryLanguageIds,
   clearFilters,
-} = useFilterState();
+} = useFilterState(allLanguages);
 
 const { loading, filteredCharacters, unicodeScriptIds, fetchScriptIds } =
   useCharacters(
@@ -27,6 +30,7 @@ const { loading, filteredCharacters, unicodeScriptIds, fetchScriptIds } =
     unicodeQuery,
     countryLanguageIds,
     allLanguages,
+    allCharacters,
   );
 
 const { languageOptions, countryOptions, scriptOptions, hasFilters } =

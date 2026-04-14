@@ -1,25 +1,24 @@
-import type { Language, Country, Script } from '~/types/writing-systems'
+import { computed, ref, watch } from 'vue'
+import type { Ref } from 'vue'
+import type { Language, Country, Script } from '../types/writing-systems'
 
-export function useFilterState() {
+export function useFilterState(allLanguages: Ref<Language[] | null>) {
   const selectedLanguage = ref<Language | null>(null)
   const selectedCountry = ref<Country | null>(null)
   const selectedScript = ref<Script | null>(null)
   const unicodeQuery = ref('')
 
-  // Language IDs spoken in the selected country (resolved async via the API)
-  const countryLanguageIds = ref<string[] | null>(null)
+  const countryLanguageIds = computed<string[] | null>(() => {
+    if (!selectedCountry.value || !allLanguages.value) return null
+    const countryId = selectedCountry.value.id
+    const ids = allLanguages.value
+      .filter((l: Language) => l.countries?.some(lc => lc.countryId === countryId))
+      .map((l: Language) => l.id)
+    return ids.length > 0 ? ids : null
+  })
 
-  watch(selectedCountry, async (country: Country | null) => {
-    if (!country) {
-      countryLanguageIds.value = null
-      return
-    }
-    const langs = await $fetch<Language[]>(
-      `/api/queries/languages-by-country?iso3166_1=${country.iso3166_1}`
-    )
-    countryLanguageIds.value = langs.map((l: Language) => l.id)
-    // Drop language selection when it is not spoken in the newly selected country
-    if (selectedLanguage.value && !countryLanguageIds.value.includes(selectedLanguage.value.id)) {
+  watch(selectedCountry, () => {
+    if (selectedLanguage.value && countryLanguageIds.value && !countryLanguageIds.value.includes(selectedLanguage.value.id)) {
       selectedLanguage.value = null
     }
   })
