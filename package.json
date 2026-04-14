@@ -18,6 +18,7 @@
     "db:reset": "prisma migrate reset --force"
   },
   "dependencies": {
+    "@netlify/functions": "^5.2.0",
     "@primeuix/themes": "^2.0.3",
     "@primevue/nuxt-module": "^4.5.5",
     "@prisma/client": "^5.22.0",
