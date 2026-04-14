@@ -3,6 +3,7 @@
 .output
 .env
 .nitro
+.netlify
 
 # Node
 node_modules
