@@ -1,0 +1,125 @@
+# Writing Systems Project
+
+This is a comprehensive writing systems database built with Nuxt 3, Prisma, and PostgreSQL.
+
+## Project Structure
+
+```
+writing-systems/
+├── prisma/
+│   ├── schema.prisma          # Database schema with Language, Script, Country, Character models
+│   └── seed.ts                # Seed data for initial database population
+├── server/
+│   ├── api/
+│   │   ├── languages/         # CRUD endpoints for languages
+│   │   ├── scripts/           # CRUD endpoints for scripts
+│   │   ├── countries/         # CRUD endpoints for countries
+│   │   ├── characters/        # CRUD endpoints for characters
+│   │   ├── queries/           # Complex query endpoints
+│   │   └── relations/         # Junction table management endpoints
+│   └── utils/
+│       └── prisma.ts          # Prisma client singleton
+├── docker-compose.yml         # PostgreSQL database container
+└── nuxt.config.ts            # Nuxt configuration
+```
+
+## Database Models
+
+### Core Models
+- **Language**: Languages with ISO codes, families, branches, and speaker counts
+- **Script**: Writing systems with ISO 15924 codes, types (alphabet, abjad, etc.), and direction
+- **Country**: Countries with ISO 3166 codes, regions, and populations
+- **Character**: Individual Unicode characters with metadata
+
+### Junction Tables
+- **LanguageScript**: Many-to-many relationship between languages and scripts
+- **LanguageCountry**: Many-to-many relationship between languages and countries
+
+## API Routes
+
+### CRUD Operations
+All models support standard CRUD operations:
+- GET `/api/{model}` - List all (with filtering)
+- GET `/api/{model}/{id}` - Get single item
+- POST `/api/{model}` - Create new item
+- PUT `/api/{model}/{id}` - Update item
+- DELETE `/api/{model}/{id}` - Delete item
+
+### Complex Queries
+- GET `/api/queries/languages-by-script` - Find languages that use a specific script
+- GET `/api/queries/scripts-by-language` - Find scripts used by a language
+- GET `/api/queries/countries-by-language` - Find countries where a language is spoken
+- GET `/api/queries/languages-by-country` - Find languages spoken in a country
+- GET `/api/queries/language-families` - Group languages by family
+- GET `/api/queries/script-types` - Group scripts by type
+
+### Relations Management
+- POST `/api/relations/language-script` - Link language to script
+- DELETE `/api/relations/language-script/{id}` - Remove link
+- POST `/api/relations/language-country` - Link language to country
+- DELETE `/api/relations/language-country/{id}` - Remove link
+
+## Common Development Tasks
+
+### Start Development Server
+```bash
+npm run dev
+```
+
+### Database Operations
+```bash
+npm run db:push      # Push schema changes to database
+npm run db:migrate   # Create and run migrations
+npm run db:seed      # Populate database with seed data
+npm run db:studio    # Open Prisma Studio GUI
+npm run db:reset     # Reset database and re-seed
+```
+
+### Docker Commands
+```bash
+docker-compose up -d    # Start PostgreSQL
+docker-compose down     # Stop PostgreSQL
+docker-compose logs     # View logs
+```
+
+## Example API Calls
+
+### Get all languages with their scripts
+```
+GET /api/languages?include=scripts
+```
+
+### Get languages in the Indo-European family
+```
+GET /api/languages?family=Indo-European
+```
+
+### Get scripts used by Japanese
+```
+GET /api/queries/scripts-by-language?languageName=Japanese
+```
+
+### Get all alphabet-type scripts
+```
+GET /api/scripts?type=alphabet
+```
+
+### Get languages spoken in India
+```
+GET /api/queries/languages-by-country?iso3166_1=IN
+```
+
+## CSS Architecture
+- Layer order: `reset → base → utilities`
+- Component-specific styles live in `<style scoped>` inside each `.vue` file
+- Only globally reusable classes (.btn, .sr-only, .error, .loading, .info) go in `utilities.css`
+- CSS custom properties are declared in `:root` inside `base.css`
+
+## Code Style
+- Language: TypeScript strict
+- Formatter & Linter: Biome
+- All identifiers/comments: English
+- Boolean state: `is*` prefix
+- Event handlers: `on*` prefix
+- Functions: verb-first names
+- Vue templates: props always in camelCase (`:fontFamily`, not `:font-family`)

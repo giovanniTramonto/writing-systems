@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Language {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  nativeName  String?
+  iso639_1    String?  @unique // 2-letter code
+  iso639_2    String?  @unique // 3-letter code
+  family      String?  // Language family (e.g., "Indo-European", "Sino-Tibetan")
+  branch      String?  // Branch within family
+  speakers    BigInt?  // Number of speakers
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  scripts         LanguageScript[]
+  countries       LanguageCountry[]
+  characters      Character[]
+
+  @@index([family])
+  @@index([iso639_1])
+}
+
+model Script {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  nativeName  String?
+  iso15924    String?  @unique // 4-letter code
+  type        String   // "alphabet", "abjad", "abugida", "syllabary", "logographic", etc.
+  direction   String   // "ltr", "rtl", "ttb", "btt"
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  languages  LanguageScript[]
+  characters Character[]
+
+  @@index([type])
+  @@index([iso15924])
+}
+
+model Country {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  nativeName  String?
+  iso3166_1   String   @unique // 2-letter code
+  iso3166_2   String?  @unique // 3-letter code
+  region      String?  // Geographic region
+  subregion   String?
+  population  BigInt?
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  languages LanguageCountry[]
+
+  @@index([region])
+  @@index([iso3166_1])
+}
+
+model Character {
+  id          String   @id @default(cuid())
+  character   String   @unique
+  unicodeHex  String   @unique
+  unicodeDec  Int      @unique
+  name        String
+  block       String?  // Unicode block
+  category    String?  // General category
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  languageId String?
+  language   Language? @relation(fields: [languageId], references: [id], onDelete: SetNull)
+  scriptId   String?
+  script     Script?   @relation(fields: [scriptId], references: [id], onDelete: SetNull)
+
+  @@index([block])
+  @@index([category])
+  @@index([languageId])
+  @@index([scriptId])
+}
+
+// Junction Tables for Many-to-Many Relationships
+
+model LanguageScript {
+  id         String   @id @default(cuid())
+  languageId String
+  scriptId   String
+  isPrimary  Boolean  @default(false) // Indicates if this is the primary script for the language
+  status     String?  // "current", "historical", "liturgical", etc.
+  createdAt  DateTime @default(now())
+
+  language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  script   Script   @relation(fields: [scriptId], references: [id], onDelete: Cascade)
+
+  @@unique([languageId, scriptId])
+  @@index([languageId])
+  @@index([scriptId])
+  @@index([isPrimary])
+}
+
+model LanguageCountry {
+  id         String   @id @default(cuid())
+  languageId String
+  countryId  String
+  isOfficial Boolean  @default(false) // Indicates if this is an official language
+  speakers   BigInt?  // Number of speakers in this country
+  percentage Float?   // Percentage of population
+  status     String?  // "official", "regional", "minority", etc.
+  createdAt  DateTime @default(now())
+
+  language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  country  Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@unique([languageId, countryId])
+  @@index([languageId])
+  @@index([countryId])
+  @@index([isOfficial])
+}
