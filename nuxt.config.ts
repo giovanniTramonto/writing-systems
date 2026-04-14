@@ -26,6 +26,10 @@ export default defineNuxtConfig({
       'postgresql://postgres:postgres@localhost:5432/writing_systems?schema=public',
   },
 
+  experimental: {
+    appManifest: false,
+  },
+
   nitro: {
     preset: 'netlify',
     experimental: {
